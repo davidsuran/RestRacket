@@ -96,14 +96,12 @@
 
 
 (define (send-request-button-clicked)
-  ;(send url-text insert "url"))
-  ;(send send-request-message (~a count)))
   (send-request
    (get-http-procedure *selected-verb*)
    (send url-text get-text)
    (send url-params-text get-text)
    (send message-header-text get-text)
-   body))
+   (send message-body-text get-text)))
 
 (define message
   (new message%
@@ -130,7 +128,6 @@
      (label "&Help")
      (parent menu-bar))
 
-
 (send frame show #t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -142,13 +139,7 @@
 
 (define entity-id "entityId=8a8294174b7ecb28014b9699220015ca")
 
-(define (slist->string slst)
-  (string-join (map symbol->string slst) " "))
-
 (define (send-request verb-procedure base-url url-params header body)
-  (displayln (procedure? verb-procedure))
-  ;(let ([result (verb-procedure (make-requester base-url) url-params body #:headers (list header))])
-  (let ([result (verb-procedure (make-requester base-url) url-params body #:headers (list header))])
+  (let ([result (verb-procedure (make-requester base-url) url-params (string->bytes/utf-8 body) #:headers (list header))])
     (displayln result)
     (send message-result-text insert (http-response-body result))))
-
