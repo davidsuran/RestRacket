@@ -22,11 +22,11 @@
 
 (define frame (new frame% [label "Rest-post"]
                    [width 600]
-                   [height 300]))
+                   [height 600]))
 
 (define options-panel (new panel% [parent frame][stretchable-height #f][min-height 60]))
 
-(define url-panel (new panel% [parent frame][stretchable-height #f][min-height 60]))
+(define url-panel (new horizontal-panel% [parent frame][stretchable-height #f][min-height 160]))
 
 (define header-panel (new panel% [parent frame][stretchable-height #f][min-height 160]))
 
@@ -34,17 +34,17 @@
 
 (define buttons-panel (new horizontal-panel% [parent frame][stretchable-height #t][min-height 60]))
 
-(define selected-verb "POST")
+(define *selected-verb* "POST")
 (define (set-selected-verb! verb)
-  (set! selected-verb verb))
+  (set! *selected-verb* verb))
 
 (define http-verb-list-box (new list-box%
                            [parent options-panel]
                            [label "HTTP Verbs"]
                            [choices '("POST" "GET" "PUT" "DELETE")]
                            [selection 0]
-                           [callback (λ (self event)                                     
-                                       (set-selected-verb! (send http-verb-list-box get-data (first (send http-verb-list-box get-selections)))))]
+                           [callback (λ (self event)
+                                       (set-selected-verb! (send http-verb-list-box get-string (first (send http-verb-list-box get-selections)))))]
                            ))
 
 (define message-header-canvas (new editor-canvas%
@@ -76,6 +76,7 @@
 
 (define url-canvas (new editor-canvas%
                            [parent url-panel]
+                           [stretchable-width #t]
                            [label "Editor Canvas"]
                            ))
 
@@ -83,14 +84,24 @@
 (send url-text insert "eu-test.oppwa.com")
 (send url-canvas set-editor url-text)
 
+(define url-params-canvas (new editor-canvas%
+                           [parent url-panel]
+                           [stretchable-width #t]
+                           [label "Editor Canvas"]
+                           ))
+
+(define url-params-text (new text%))
+(send url-params-text insert "v1/checkouts?entityId=8a8294174b7ecb28014b9699220015ca&amount=1.00&currency=EUR&paymentType=DB")
+(send url-params-canvas set-editor url-params-text)
+
 
 (define (send-request-button-clicked)
   ;(send url-text insert "url"))
   ;(send send-request-message (~a count)))
   (send-request
-   (get-http-procedure selected-verb)
+   (get-http-procedure *selected-verb*)
    (send url-text get-text)
-   "v1/checkouts?entityId=8a8294174b7ecb28014b9699220015ca"
+   (send url-params-text get-text)
    (send message-header-text get-text)
    body))
 
