@@ -1,13 +1,13 @@
-#lang racket
+#lang racket/gui
 
 (require racket/gui
          request
          (for-syntax racket/struct-info))
 
-(define-namespace-anchor here)
-(define ns (namespace-anchor->namespace here))
+;(define-namespace-anchor here)
+;(define ns (namespace-anchor->namespace here))
 
-(current-eventspace (make-eventspace))
+;(current-eventspace (make-eventspace))
 
 (define (get-http-procedure verb-string)
   (cond
@@ -20,7 +20,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(define frame (new frame% [label "Rest-post"]
+(define frame (new frame% [label "Rest"]
                    [width 600]
                    [height 600]))
 
@@ -43,8 +43,7 @@
                            [label "HTTP Verbs"]
                            [choices '("POST" "GET" "PUT" "DELETE")]
                            [selection 0]
-                           [callback (λ (self event)
-                                       (set-selected-verb! (send http-verb-list-box get-string (first (send http-verb-list-box get-selections)))))]
+                           [callback (λ (self event) (set-selected-verb! (send http-verb-list-box get-string (first (send http-verb-list-box get-selections)))))]
                            ))
 
 (define message-header-canvas (new editor-canvas%
@@ -118,15 +117,15 @@
 
 (define menu-bar (new menu-bar%
                       (parent frame)))
-(new menu%
+(define file-menu-bar (new menu%
      (label "&File")
-     (parent menu-bar))
-(new menu%
+     (parent menu-bar)))
+(define edit-menu-bar (new menu%
      (label "&Edit")
-     (parent menu-bar))
-(new menu%
+     (parent menu-bar)))
+(define help-menu-bar (new menu%
      (label "&Help")
-     (parent menu-bar))
+     (parent menu-bar)))
 
 (send frame show #t)
 
@@ -141,5 +140,5 @@
 
 (define (send-request verb-procedure base-url url-params header body)
   (let ([result (verb-procedure (make-requester base-url) url-params (string->bytes/utf-8 body) #:headers (list header))])
-    (displayln result)
+    ;(displayln result)
     (send message-result-text insert (http-response-body result))))
