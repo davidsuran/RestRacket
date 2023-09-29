@@ -2,7 +2,8 @@
 
 (require racket/gui
          request
-         (for-syntax racket/struct-info))
+         (for-syntax racket/struct-info)
+         framework)
 
 ;(define-namespace-anchor here)
 ;(define ns (namespace-anchor->namespace here))
@@ -16,6 +17,8 @@
    [(equal? verb-string "PUT") put]
    [(equal? verb-string "DELETE") delete]
    [else (error (string-append "undefined http procedure: " verb-string))]))
+
+(define keymap (keymap:get-editor))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -54,6 +57,7 @@
 (define message-header-text (new text%))
 (send message-header-text insert "Authorization: Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg=")
 (send message-header-canvas set-editor message-header-text)
+(send message-header-text set-keymap keymap)
 
 (define message-body-canvas (new editor-canvas%
                            [parent inputs-panel]
@@ -63,6 +67,7 @@
 (define message-body-text (new text%))
 (send message-body-text insert "json")
 (send message-body-canvas set-editor message-body-text)
+(send message-body-text set-keymap keymap)
 
 (define message-result-canvas (new editor-canvas%
                            [parent inputs-panel]
@@ -72,6 +77,7 @@
 (define message-result-text (new text%))
 (send message-result-text insert "result")
 (send message-result-canvas set-editor message-result-text)
+(send message-result-text set-keymap keymap)
 
 (define url-canvas (new editor-canvas%
                            [parent url-panel]
@@ -82,6 +88,7 @@
 (define url-text (new text%))
 (send url-text insert "eu-test.oppwa.com")
 (send url-canvas set-editor url-text)
+(send url-text set-keymap keymap)
 
 (define url-params-canvas (new editor-canvas%
                            [parent url-panel]
@@ -92,7 +99,7 @@
 (define url-params-text (new text%))
 (send url-params-text insert "v1/checkouts?entityId=8a8294174b7ecb28014b9699220015ca&amount=1.00&currency=EUR&paymentType=DB")
 (send url-params-canvas set-editor url-params-text)
-
+(send url-params-text set-keymap keymap)
 
 (define (send-request-button-clicked)
   (send-request
