@@ -3,20 +3,13 @@
 (require racket/gui
          request
          (for-syntax racket/struct-info)
-         framework)
+         framework
+         "sql.rkt")
 
 ;(define-namespace-anchor here)
 ;(define ns (namespace-anchor->namespace here))
 
 ;(current-eventspace (make-eventspace))
-
-(define (get-http-procedure verb-string)
-  (cond
-   [(equal? verb-string "POST") post]
-   [(equal? verb-string "GET") get]
-   [(equal? verb-string "PUT") put]
-   [(equal? verb-string "DELETE") delete]
-   [else (error (string-append "undefined http procedure: " verb-string))]))
 
 (define keymap (keymap:get-editor))
 
@@ -24,7 +17,7 @@
 
 
 (define frame (new frame% [label "Rest"]
-                   [width 600]
+                   [width 900]
                    [height 600]))
 
 (define options-panel (new panel% [parent frame][stretchable-height #f][min-height 60]))
@@ -43,7 +36,7 @@
 
 (define http-verb-list-box (new list-box%
                            [parent options-panel]
-                           [label "HTTP Verbs"]
+                           [label "HTTP"]
                            [choices '("POST" "GET" "PUT" "DELETE")]
                            [selection 0]
                            [callback (λ (self event) (set-selected-verb! (send http-verb-list-box get-string (first (send http-verb-list-box get-selections)))))]
@@ -54,7 +47,7 @@
                            [label "Editor Canvas"]
                            ))
 
-(define message-header-text (new text%))
+(define message-header-text (new text% [auto-wrap #t]))
 (send message-header-text insert "Authorization: Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg=")
 (send message-header-canvas set-editor message-header-text)
 (send message-header-text set-keymap keymap)
@@ -64,8 +57,8 @@
                            [label "Editor Canvas"]
                            ))
 
-(define message-body-text (new text%))
-(send message-body-text insert "json")
+(define message-body-text (new text% [auto-wrap #t]))
+(send message-body-text insert "body")
 (send message-body-canvas set-editor message-body-text)
 (send message-body-text set-keymap keymap)
 
@@ -74,7 +67,7 @@
                            [label "Editor Canvas"]
                            ))
 
-(define message-result-text (new text%))
+(define message-result-text (new text% [auto-wrap #t]))
 (send message-result-text insert "result")
 (send message-result-canvas set-editor message-result-text)
 (send message-result-text set-keymap keymap)
@@ -85,7 +78,7 @@
                            [label "Editor Canvas"]
                            ))
 
-(define url-text (new text%))
+(define url-text (new text% [auto-wrap #t]))
 (send url-text insert "eu-test.oppwa.com")
 (send url-canvas set-editor url-text)
 (send url-text set-keymap keymap)
@@ -96,14 +89,14 @@
                            [label "Editor Canvas"]
                            ))
 
-(define url-params-text (new text%))
+(define url-params-text (new text% [auto-wrap #t]))
 (send url-params-text insert "v1/checkouts?entityId=8a8294174b7ecb28014b9699220015ca&amount=1.00&currency=EUR&paymentType=DB")
 (send url-params-canvas set-editor url-params-text)
 (send url-params-text set-keymap keymap)
 
 (define (send-request-button-clicked)
   (send-request
-   (get-http-procedure *selected-verb*)
+   *selected-verb*
    (send url-text get-text)
    (send url-params-text get-text)
    (send message-header-text get-text)
@@ -145,7 +138,25 @@
 
 (define entity-id "entityId=8a8294174b7ecb28014b9699220015ca")
 
-(define (send-request verb-procedure base-url url-params header body)
-  (let ([result (verb-procedure (make-requester base-url) url-params (string->bytes/utf-8 body) #:headers (list header))])
-    ;(displayln result)
-    (send message-result-text insert (http-response-body result))))
+
+(define (get-http-procedure verb-string)
+  (cond
+   [(equal? verb-string "POST") post]
+   [(equal? verb-string "GET") get]
+   [(equal? verb-string "PUT") put]
+   [(equal? verb-string "DELETE") delete]
+   [else (error (string-append "undefined http procedure: " verb-string))]))
+
+(define (send-request verb-string base-url url-params header body)
+ (let ([result (cond
+   [(equal? verb-string "POST")
+    (post (make-requester base-url) url-params (string->bytes/utf-8 body) #:headers (list header))]
+   [(equal? verb-string "GET")
+    (get (make-requester base-url) url-params #:headers (list header))]
+   [(equal? verb-string "PUT")
+    (put (make-requester base-url) url-params (string->bytes/utf-8 body) #:headers (list header))]
+   [(equal? verb-string "DELETE")
+    (delete (make-requester base-url) url-params #:headers (list header))]
+   [else (error (string-append "undefined http procedure: " verb-string))])])
+ ;(displayln result)
+ (send message-result-text insert (http-response-body result))))

@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 *.bak
 /build
+/rest-requests.db
