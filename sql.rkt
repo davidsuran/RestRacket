@@ -21,7 +21,7 @@
 (define c
     (virtual-connection
      (lambda ()
-       (printf "connecting!\n")
+       ;(printf "connecting!\n")
        (sqlite3-connect #:database "rest-requests.db" #:mode 'create))))
 
 (query-exec c "CREATE TABLE IF NOT EXISTS [Requests] ([Id] INTEGER, [Url] TEXT, [UrlParams] TEXT, [Header] TEXT, [Body] TEXT, UNIQUE([Id]));")

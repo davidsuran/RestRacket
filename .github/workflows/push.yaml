@@ -1,5 +1,4 @@
-on:
-  - push
+on: ["push", "pull_request"]
 
 jobs:
   test:
@@ -13,9 +12,7 @@ jobs:
           architecture: 'x64'
           distribution: 'full'
           version: '8.2'
+      - name: Install Package and its Dependencies
++       run: raco pkg install --auto --batch
       - name: Run Tests
         run: raco test main.rkt
-
-#     - name: Setup Racket environment
-#                uses: Bogdanp/setup-racket@v1.10
-                 
