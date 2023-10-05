@@ -1,5 +1,5 @@
 #lang info
 
 (define build-deps '("request"
-                     "json"
-                     "base64"))
+                     "json-format"
+                     "base64-lib"))
