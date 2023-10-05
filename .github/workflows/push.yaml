@@ -13,6 +13,6 @@ jobs:
           distribution: 'full'
           version: '8.2'
       - name: Install Package and its Dependencies
-+       run: raco pkg install --auto --batch
+        run: raco pkg install --auto --batch
       - name: Run Tests
         run: raco test main.rkt
