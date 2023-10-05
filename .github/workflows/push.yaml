@@ -17,3 +17,5 @@ jobs:
         run: raco pkg install --auto --batch
       - name: Run Tests
         run: raco test auth.rkt
+      - name: Coveralls 
+        uses: coverallsapp/github-action@v2
