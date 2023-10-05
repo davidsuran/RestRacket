@@ -7,8 +7,8 @@
          db
          json
          json/format/simple
-         base64
-         "sql.rkt")
+         "sql.rkt"
+         "auth.rkt")
 
 ;(define-namespace-anchor here)
 ;(define ns (namespace-anchor->namespace here))
@@ -167,14 +167,6 @@
         insert
         (basic-auth (send auth-name-text get-text) (send auth-pass-text get-text))))
 
-(define (basic-auth name password)
-  (string-append
-         "Authorization: Basic "
-         (bytes->string/utf-8
-          (base64-encode
-           (string->bytes/utf-8
-            (string-append name ":" password))))))
-
 (define set-texts
   (let ([result last-opened-request-safe])
     (send url-text insert (vector-ref result 1))
@@ -201,9 +193,3 @@
            (if (jsexpr? response-body)
                (jsexpr->pretty-json (string->jsexpr response-body))
                response-body)))))
-
-(module+ test
-  (require rackunit)
-  (send frame show #f)
-  (check-equal? (basic-auth "aaaa@cccc" "bbbb")
-                "Authorization: Basic YWFhYUBjY2NjOmJiYmI"))
