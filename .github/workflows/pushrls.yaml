@@ -31,3 +31,5 @@ jobs:
             - Second Change
           draft: false
           prerelease: false
+      - name: Install Package and its Dependencies
+        run: raco exe --gui main.rkt
