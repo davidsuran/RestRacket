@@ -424,3 +424,4 @@ TAGS
 _zuo.db
 _zuo_tc.db
 *.zip
+/coverage

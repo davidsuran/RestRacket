@@ -19,6 +19,7 @@ jobs:
         run: raco test auth.rkt
       - name: Coveralls 
         uses: coverallsapp/github-action@v2
+        run: raco cover auth.rkt
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
