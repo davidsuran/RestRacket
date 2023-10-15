@@ -425,3 +425,4 @@ _zuo.db
 _zuo_tc.db
 *.zip
 /coverage
+/main.exe

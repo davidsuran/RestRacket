@@ -45,6 +45,7 @@
 (define message-header-canvas (new editor-canvas%
                            [parent header-panel]
                            [label "Editor Canvas"]))
+(send message-header-canvas allow-scroll-to-last #t)
 
 (define message-header-text (new text% [auto-wrap #t]))
 (send message-header-canvas set-editor message-header-text)
@@ -80,7 +81,8 @@
                            [parent url-panel]
                            [stretchable-width #t]
                            [label "Editor Canvas"]))
-
+(send url-canvas allow-scroll-to-last #t)
+  
 (define url-text (new text% [auto-wrap #t]))
 (send url-canvas set-editor url-text)
 (send url-text set-keymap keymap)

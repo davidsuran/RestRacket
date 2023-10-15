@@ -1,16 +1,12 @@
 #lang racket
 
-(require db)
+(require db
+         racket/file
+         racket/runtime-path)
 
 (provide last-opened-request-safe)
 
-;(provide
-; (rename-out [param-get get]
-;             [param-put put]
-;             [param-post post]
-;             [param-delete delete])
-; (except-out (all-from-out "main.rkt") get put post delete))
-
+(define-runtime-path db-init-file "sql/db-init.sql")
 
 ;(display "Ïs sqlite3 available?: ")
 ;(displayln (sqlite3-available?))
@@ -24,13 +20,40 @@
        ;(printf "connecting!\n")
        (sqlite3-connect #:database "rest-requests.db" #:mode 'create))))
 
-(query-exec c "CREATE TABLE IF NOT EXISTS [Requests] ([Id] INTEGER, [Url] TEXT, [UrlParams] TEXT, [Header] TEXT, [Body] TEXT, UNIQUE([Id]));")
-(query-exec c "CREATE TABLE IF NOT EXISTS [LastActiveRequests] ([Id] INTEGER, [RequestId] INTEGER, [LastOpen] BLOB, FOREIGN KEY([RequestId]) REFERENCES Requests([Id]), UNIQUE([Id]));")
+(define/contract (sql->statements sql)
+  (-> string? (listof string?))
+  (regexp-split #px"\\s*;\\s*" sql))
 
-(query-exec c "INSERT OR IGNORE INTO [Requests] ([Id], [Url], [UrlParams], [Header], [Body])
-  VALUES (1, \"eu-test.oppwa.com\", \"v1/checkouts?entityId=8a8294174b7ecb28014b9699220015ca&amount=1.00&currency=EUR&paymentType=DB\", \"Authorization: Bearer OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg=\", NULL)")
-(query-exec c "INSERT OR IGNORE INTO [LastActiveRequests] ([Id], [RequestId], [LastOpen])
-  VALUES (1, 1, 1)")
+(define (query-exec* connection . stmts)
+  (for ([stmt stmts])
+    ;(displayln stmt)
+    ;(displayln "-------")
+    (if (not (regexp-match-exact? #px"\\s*" stmt))
+        (query-exec connection stmt)
+        #t)))
+
+;(define (query-exec-file connection path file)
+;  (apply query-exec* connection
+;         (call-with-input-file path file)))
+
+
+;(query-exec-file c "sql" db-init-file)
+
+(define (split-file-statements stmts)
+  (define (splitter stmts)
+     (string-split stmts "\\n\\n"))
+
+  (displayln "\\n\\n\\n\\n\\n\\n")
+  (for ([s stmts])
+    (displayln s)
+    (displayln ""))
+  
+  (splitter stmts))
+  
+  ;(map string (string->list stmts)))
+
+(apply query-exec* c (sql->statements (file->string db-init-file)))
+
 
 (define last-opened-request
   (query-row c "SELECT [Requests].[Id], [Requests].[Url], [Requests].[UrlParams], [Requests].[Header], [Requests].[Body] FROM [LastActiveRequests] INNER JOIN [Requests] ON [Requests].[Id] = [LastActiveRequests].[Id] WHERE [LastActiveRequests].[LastOpen] = $1" 1))
